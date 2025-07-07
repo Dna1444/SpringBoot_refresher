@@ -6,6 +6,7 @@ import com.ddcodeing.sprint_boot_refresher.database.repository.UserRepository
 import com.ddcodeing.sprint_boot_refresher.dto.NoteRequest
 import com.ddcodeing.sprint_boot_refresher.dto.NoteResponse
 import jakarta.persistence.GenerationType
+import jakarta.validation.Valid
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
@@ -26,9 +27,10 @@ class NoteController(
 
     @PostMapping
     fun save(
-        @RequestBody body: NoteRequest
+        @Valid @RequestBody body: NoteRequest
     ): NoteResponse {
-        val userId = SecurityContextHolder.getContext().authentication.principal as Long
+        val principal = SecurityContextHolder.getContext().authentication.principal as String
+        val userId = principal.toLong()
 
         val user = userRepository.findById(userId)
             .orElseThrow { IllegalArgumentException("User not found") }
@@ -61,8 +63,10 @@ class NoteController(
 
     @GetMapping
     fun findByUserId(): List<NoteResponse> {
-        val ownerId = SecurityContextHolder.getContext().authentication.principal as Long
-        return repository.findByUserId(ownerId).map{
+        val principal = SecurityContextHolder.getContext().authentication.principal as String
+        val userId = principal.toLong()
+
+        return repository.findByUserId(userId).map{
             it.toResponse()
         }
     }
@@ -72,9 +76,10 @@ class NoteController(
         val note = repository.findById(id).orElseThrow {
             IllegalArgumentException("Note not found")
         }
-        val ownerId = SecurityContextHolder.getContext().authentication.principal as Long
+        val principal = SecurityContextHolder.getContext().authentication.principal as String
+        val userId = principal.toLong()
 
-        if(note.user.id == ownerId) {
+        if(note.user.id == userId) {
             repository.deleteById(id)
         }
     }

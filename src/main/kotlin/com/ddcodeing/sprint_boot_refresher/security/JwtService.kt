@@ -4,7 +4,9 @@ import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.http.HttpStatusCode
 import org.springframework.stereotype.Service
+import org.springframework.web.server.ResponseStatusException
 import java.util.Base64
 import java.util.Date
 
@@ -54,7 +56,8 @@ class JwtService (
     }
 
     fun getUserIdFromToken(token: String): Long {
-        val claims = parseAllClaims(token) ?: throw IllegalArgumentException("Invalid token.")
+        val claims = parseAllClaims(token) ?: throw ResponseStatusException(HttpStatusCode.valueOf(401),
+            "invalid refresh token.")
         return claims.subject.toLong()
     }
 
@@ -69,6 +72,7 @@ class JwtService (
                 .parseSignedClaims(rawToken)
                 .payload
         } catch (e: Exception) {
+            e.printStackTrace()
             null
         }
     }

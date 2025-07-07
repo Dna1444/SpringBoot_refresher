@@ -13,24 +13,27 @@ import java.time.Instant
 
 @Entity
 @Table(name = "users")
-data class User(
+class User(
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long = 0,
+    var id: Long = 0,
 
-    @Column(name = "email", nullable = false)
-    val email: String,
+    @Column(nullable = false)
+    var email: String = "",
 
-    @Column( name = "hashed_password", nullable = false)
-    val hashedPassword: String,
+    @Column(name = "hashed_password", nullable = false)
+    var hashedPassword: String = "",
 
-    @OneToMany(mappedBy = "user", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
-    val refreshTokens: MutableList<RefreshToken> = mutableListOf(),
+    @OneToMany(mappedBy = "user", cascade = [CascadeType.ALL], orphanRemoval = true)
+    var refreshTokens: MutableList<RefreshToken> = mutableListOf(),
 
-    @OneToMany(mappedBy = "user", cascade = [CascadeType.ALL], orphanRemoval = true, fetch = FetchType.LAZY)
-    val notes: MutableList<Note> = mutableListOf(),
+    @OneToMany(mappedBy = "user", cascade = [CascadeType.ALL], orphanRemoval = true)
+    var notes: MutableList<Note> = mutableListOf(),
 
-
-    @Column( name = "created_at", nullable = false)
-    val createdAt: Instant = Instant.now()
-)
+    @Column(name = "created_at", nullable = false)
+    var createdAt: Instant = Instant.now()
+) {
+    // Required by JPA
+    constructor() : this(0, "", "", mutableListOf(), mutableListOf(), Instant.now())
+}
